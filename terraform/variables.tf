@@ -49,11 +49,6 @@ variable "apps_subnet_prefix" {
   default     = "10.0.4.0/24"
 }
 
-variable "google_staticmap_key" {
-  description = "Key for google static maps access"
-  type        = string
-}
-
 variable "deploy_to_vnet" {
   description = "Enable / disable private endpoints"
   type        = bool

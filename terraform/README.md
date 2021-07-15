@@ -13,7 +13,6 @@ tbd / change to deploy from console
 | [deploy\_to\_vnet](#input\_deploy\_to\_vnet) | Enable / disable private endpoints | `bool` | `true` | no |
 | [enable\_private\_endpoint](#input\_enable\_private\_endpoint) | Enable / disable private endpoints | `bool` | `true` | no |
 | [env\_code](#input\_env\_code) | Environment code such as dev/prod. This value is used as a prefix to name the resources. | `string` | `"dev"` | no |
-| [google\_staticmap\_key](#input\_google\_staticmap\_key) | Key for google static maps access | `string` | n/a | yes |
 | [location](#input\_location) | Location where the resources should be created | `string` | n/a | yes |
 | [project\_code](#input\_project\_code) | Project code such as mlops. This value is used as a prefix to name the resources. | `string` | n/a | yes |
 | [resource\_group\_name](#input\_resource\_group\_name) | Name of the resource group to deploy the resources to | `string` | n/a | yes |
