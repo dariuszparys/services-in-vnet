@@ -54,13 +54,3 @@ variable "deploy_to_vnet" {
   type        = bool
   default     = true
 }
-
-variable "vmss_admin_user" {
-  description = "Admin user account to log into the vmss instance"
-  type        = string
-}
-
-variable "source_image_id" {
-  description = "Image to be used for the AzDO agent pool scale set"
-  type        = string
-}

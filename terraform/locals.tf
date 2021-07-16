@@ -29,7 +29,6 @@ locals {
   workspace_name          = "${local.resource_prefix}-workspace"
   storage_name            = "${local.storage_prefix}${local.seed_suffix}"
   apps_storage_name       = "${local.storage_prefix}apps${local.seed_suffix}"
-  vmss_name               = "${local.resource_prefix}-vmss"
 }
 
 locals {
