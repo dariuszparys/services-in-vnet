@@ -70,7 +70,6 @@ resource "azurerm_function_app" "coreapi" {
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "apps_vnet" {
-  #count          = var.deploy_to_vnet ? 1 : 0
   app_service_id = azurerm_function_app.coreapi.id
   subnet_id      = azurerm_subnet.apps.id
   depends_on     = [
@@ -81,13 +80,11 @@ resource "azurerm_app_service_virtual_network_swift_connection" "apps_vnet" {
 
 
 resource "azurerm_private_dns_zone" "websites_zone" {
-  #count               = var.deploy_to_vnet ? 1 : 0
   name                = "privatelink.azurewebsites.net"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "websites_zone_link" {
-  #count                 = var.deploy_to_vnet ? 1 : 0
   name                  = "${local.resource_prefix}.websites_link"
   resource_group_name   = data.azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.websites_zone.name
@@ -95,7 +92,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "websites_zone_link" {
 }
 
 resource "azurerm_private_endpoint" "core_api_pe" {
-  #count               = var.deploy_to_vnet ? 1 : 0
   name                = "${local.resource_prefix}-core-api-pe-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
@@ -111,7 +107,6 @@ resource "azurerm_private_endpoint" "core_api_pe" {
 }
 
 data "azurerm_private_endpoint_connection" "core_api_conn" {
-  #count                 = var.deploy_to_vnet ? 1 : 0  
   depends_on            = [azurerm_private_endpoint.core_api_pe]
 
   name                  = azurerm_private_endpoint.core_api_pe.name
@@ -119,7 +114,6 @@ data "azurerm_private_endpoint_connection" "core_api_conn" {
 }
 
 resource "azurerm_private_dns_a_record" "core_api_dns_a_record" {
-  #count                 = var.deploy_to_vnet ? 1 : 0  
   depends_on            = [azurerm_container_registry.this]
 
   name                  = lower(azurerm_function_app.coreapi.name)

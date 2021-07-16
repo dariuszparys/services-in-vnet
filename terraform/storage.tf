@@ -12,7 +12,6 @@ resource "azurerm_storage_account" "aml" {
 }
 
 resource "azurerm_storage_account_network_rules" "firewall_rules" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   resource_group_name = data.azurerm_resource_group.this.name
   storage_account_name = azurerm_storage_account.aml.name
 
@@ -27,19 +26,16 @@ resource "azurerm_storage_account_network_rules" "firewall_rules" {
 }
 
 resource "azurerm_private_dns_zone" "sa_zone_blob" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "privatelink.blob.core.windows.net"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone" "sa_zone_file" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "privatelink.file.core.windows.net"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "sa_zone_blob_link" {
-  #count                 = var.deploy_to_vnet ? 1 : 0  
   name                  = "${local.resource_prefix}_link_blob"
   resource_group_name   = data.azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.sa_zone_blob.name
@@ -47,7 +43,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "sa_zone_blob_link" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "sa_zone_file_link" {
-  #count                 = var.deploy_to_vnet ? 1 : 0  
   name                  = "${local.resource_prefix}_link_file"
   resource_group_name   = data.azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.sa_zone_file.name
@@ -55,7 +50,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "sa_zone_file_link" {
 }
 
 resource "azurerm_private_endpoint" "sa_pe_blob" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "${local.resource_prefix}-sa-pe-blob-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
@@ -70,7 +64,6 @@ resource "azurerm_private_endpoint" "sa_pe_blob" {
 }
 
 resource "azurerm_private_endpoint" "sa_pe_file" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "${local.resource_prefix}-sa-pe-file-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
@@ -85,7 +78,6 @@ resource "azurerm_private_endpoint" "sa_pe_file" {
 }
 
 data "azurerm_private_endpoint_connection" "sa_pe_file_conn" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_private_endpoint.sa_pe_file]
 
   name                = azurerm_private_endpoint.sa_pe_file.name
@@ -93,7 +85,6 @@ data "azurerm_private_endpoint_connection" "sa_pe_file_conn" {
 }
 
 resource "azurerm_private_dns_a_record" "sa_pe_file_dns_a_record" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_storage_account.aml]
 
   name                = lower(azurerm_storage_account.aml.name)
@@ -104,7 +95,6 @@ resource "azurerm_private_dns_a_record" "sa_pe_file_dns_a_record" {
 }
 
 data "azurerm_private_endpoint_connection" "sa_pe_blob_conn" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_private_endpoint.sa_pe_blob]
 
   name                = azurerm_private_endpoint.sa_pe_blob.name
@@ -112,7 +102,6 @@ data "azurerm_private_endpoint_connection" "sa_pe_blob_conn" {
 }
 
 resource "azurerm_private_dns_a_record" "sa_pe_blob_dns_a_record" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_storage_account.aml]
 
   name                = lower(azurerm_storage_account.aml.name)

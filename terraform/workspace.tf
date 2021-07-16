@@ -17,19 +17,16 @@ resource "azurerm_machine_learning_workspace" "this" {
 }
 
 resource "azurerm_private_dns_zone" "ws_zone_api" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "privatelink.api.azureml.ms"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone" "ws_zone_notebooks" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "privatelink.notebooks.azure.net"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "ws_zone_api_link" {
-  #count                 = var.deploy_to_vnet ? 1 : 0  
   name                  = "${local.resource_prefix}_link_api"
   resource_group_name   = data.azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.ws_zone_api.name
@@ -37,7 +34,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "ws_zone_api_link" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "ws_zone_notebooks_link" {
-  #count                 = var.deploy_to_vnet ? 1 : 0  
   name                  = "${local.resource_prefix}_link_notebooks"
   resource_group_name   = data.azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.ws_zone_notebooks.name
@@ -47,7 +43,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "ws_zone_notebooks_link
 # Private Endpoint configuration
 
 resource "azurerm_private_endpoint" "ws_pe" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "${local.resource_prefix}-ws-pe-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
@@ -64,7 +59,6 @@ resource "azurerm_private_endpoint" "ws_pe" {
 }
 
 data "azurerm_private_endpoint_connection" "ws_conn" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_private_endpoint.ws_pe]
 
   name                = azurerm_private_endpoint.ws_pe.name
@@ -72,7 +66,6 @@ data "azurerm_private_endpoint_connection" "ws_conn" {
 }
 
 resource "null_resource" "dns_aml_fix" {
-  #count      = var.deploy_to_vnet ? 1 : 0  
   depends_on = [azurerm_private_endpoint.ws_pe]
 
   provisioner "local-exec" {

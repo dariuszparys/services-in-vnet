@@ -53,13 +53,11 @@ resource "azurerm_key_vault" "this" {
 }
 
 resource "azurerm_private_dns_zone" "kv_zone" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "privatelink.vaultcore.azure.net"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "kv_zone_link" {
-  #count                 = var.deploy_to_vnet ? 1 : 0  
   name                  = "${local.resource_prefix}_link_kv"
   resource_group_name   = data.azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.kv_zone.name
@@ -67,7 +65,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "kv_zone_link" {
 }
 
 resource "azurerm_private_endpoint" "kv_pe" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "${local.resource_prefix}-kv-pe-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
@@ -82,7 +79,6 @@ resource "azurerm_private_endpoint" "kv_pe" {
 }
 
 data "azurerm_private_endpoint_connection" "kv_conn" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_private_endpoint.kv_pe]
 
   name                = azurerm_private_endpoint.kv_pe.name
@@ -90,7 +86,6 @@ data "azurerm_private_endpoint_connection" "kv_conn" {
 }
 
 resource "azurerm_private_dns_a_record" "kv_pe_dns_a_record" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_key_vault.this]
 
   name                = lower(azurerm_key_vault.this.name)

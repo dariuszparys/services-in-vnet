@@ -26,13 +26,11 @@ resource "azurerm_container_registry" "this" {
 }
 
 resource "azurerm_private_dns_zone" "acr_zone" {
-  #count               = var.deploy_to_vnet ? 1 : 0
   name                = "privatelink.azurecr.io"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "acr_zone_link" {
-  #count                 = var.deploy_to_vnet ? 1 : 0  
   name                  = "${local.resource_prefix}.acr_link"
   resource_group_name   = data.azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.acr_zone.name
@@ -40,7 +38,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "acr_zone_link" {
 }
 
 resource "azurerm_private_endpoint" "acr_pe" {
-  #count                = var.deploy_to_vnet ? 1 : 0  
   name                = "${local.resource_prefix}-acr-pe-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
@@ -55,7 +52,6 @@ resource "azurerm_private_endpoint" "acr_pe" {
 }
 
 data "azurerm_private_endpoint_connection" "acr_conn" {
-  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_private_endpoint.acr_pe]
 
   name                = azurerm_private_endpoint.acr_pe.name
@@ -63,7 +59,6 @@ data "azurerm_private_endpoint_connection" "acr_conn" {
 }
 
 resource "null_resource" "dns_acr_fix" {
-  #count      = var.deploy_to_vnet ? 1 : 0  
   depends_on = [azurerm_private_endpoint.acr_pe]
 
   provisioner "local-exec" {

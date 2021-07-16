@@ -1,5 +1,4 @@
 resource "azurerm_virtual_network" "this" {
-  #count               = var.deploy_to_vnet ? 1 : 0
   name                = local.vnet_name
   resource_group_name = data.azurerm_resource_group.this.name
   location            = var.location  
@@ -10,7 +9,6 @@ resource "azurerm_virtual_network" "this" {
 }
 
 resource "azurerm_subnet" "landing" {
-  #count                = var.deploy_to_vnet ? 1 : 0
   name                 = local.landing_subnet_name
   resource_group_name  = data.azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
@@ -19,7 +17,6 @@ resource "azurerm_subnet" "landing" {
 }                
 
 resource "azurerm_subnet" "aml" {
-  #count                = var.deploy_to_vnet ? 1 : 0
   name                 = local.aml_subnet_name
   resource_group_name  = data.azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
@@ -32,7 +29,6 @@ resource "azurerm_subnet" "aml" {
 }
 
 resource "azurerm_subnet" "compute" {
-  #count                = var.deploy_to_vnet ? 1 : 0
   name                 = local.compute_subnet_name
   resource_group_name  = data.azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
@@ -45,7 +41,6 @@ resource "azurerm_subnet" "compute" {
 }
 
 resource "azurerm_subnet" "apps" {
-  #count                = var.deploy_to_vnet ? 1 : 0
   name                 = local.apps_subnet_name
   resource_group_name  = data.azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
