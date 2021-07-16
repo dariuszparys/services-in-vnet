@@ -37,11 +37,11 @@ resource "azurerm_app_service" "modelapisvc" {
 }
 
 resource "azurerm_private_endpoint" "model_api_pe" {
-  count               = var.deploy_to_vnet ? 1 : 0
+  #count               = var.deploy_to_vnet ? 1 : 0
   name                = "${local.resource_prefix}-model-api-pe-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
-  subnet_id           = azurerm_subnet.aml[count.index].id
+  subnet_id           = azurerm_subnet.aml.id
 
   private_service_connection {
     name                           = "${local.resource_prefix}-model-api-psc-${local.seed_suffix}"
@@ -53,17 +53,17 @@ resource "azurerm_private_endpoint" "model_api_pe" {
 }
 
 data "azurerm_private_endpoint_connection" "model_api_conn" {
-  count                 = var.deploy_to_vnet ? 1 : 0  
-  name                  = azurerm_private_endpoint.model_api_pe[count.index].name
+  #count                 = var.deploy_to_vnet ? 1 : 0  
+  name                  = azurerm_private_endpoint.model_api_pe.name
   resource_group_name   = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_a_record" "model_api_dns_a_record" {
-  count                 = var.deploy_to_vnet ? 1 : 0  
+  #count                 = var.deploy_to_vnet ? 1 : 0  
 
   name                  = lower(azurerm_app_service.modelapisvc.name)
-  zone_name             = azurerm_private_dns_zone.websites_zone[count.index].name
+  zone_name             = azurerm_private_dns_zone.websites_zone.name
   resource_group_name   = data.azurerm_resource_group.this.name
   ttl                   = 300
-  records               = [data.azurerm_private_endpoint_connection.model_api_conn[count.index].private_service_connection.0.private_ip_address]
+  records               = [data.azurerm_private_endpoint_connection.model_api_conn.private_service_connection.0.private_ip_address]
 }

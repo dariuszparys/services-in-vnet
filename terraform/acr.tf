@@ -7,13 +7,13 @@ resource "azurerm_container_registry" "this" {
 
 
   dynamic "network_rule_set" {
-    for_each = var.deploy_to_vnet ? [1] : []
+    for_each = [1]
     content {
       default_action = "Deny"
       virtual_network = [
         {
           action = "Allow",
-          subnet_id = azurerm_subnet.aml[0].id
+          subnet_id = azurerm_subnet.aml.id
         }
       ]
     }
@@ -29,25 +29,25 @@ resource "azurerm_container_registry" "this" {
 }
 
 resource "azurerm_private_dns_zone" "acr_zone" {
-  count               = var.deploy_to_vnet ? 1 : 0
+  #count               = var.deploy_to_vnet ? 1 : 0
   name                = "privatelink.azurecr.io"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "acr_zone_link" {
-  count                 = var.deploy_to_vnet ? 1 : 0  
+  #count                 = var.deploy_to_vnet ? 1 : 0  
   name                  = "${local.resource_prefix}.acr_link"
   resource_group_name   = data.azurerm_resource_group.this.name
-  private_dns_zone_name = azurerm_private_dns_zone.acr_zone[count.index].name
-  virtual_network_id    = azurerm_virtual_network.this[count.index].id
+  private_dns_zone_name = azurerm_private_dns_zone.acr_zone.name
+  virtual_network_id    = azurerm_virtual_network.this.id
 }
 
 resource "azurerm_private_endpoint" "acr_pe" {
-  count                = var.deploy_to_vnet ? 1 : 0  
+  #count                = var.deploy_to_vnet ? 1 : 0  
   name                = "${local.resource_prefix}-acr-pe-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
-  subnet_id           = azurerm_subnet.aml[count.index].id
+  subnet_id           = azurerm_subnet.aml.id
 
   private_service_connection {
     name                           = "${local.resource_prefix}-acr-psc-${local.seed_suffix}"
@@ -58,15 +58,15 @@ resource "azurerm_private_endpoint" "acr_pe" {
 }
 
 data "azurerm_private_endpoint_connection" "acr_conn" {
-  count               = var.deploy_to_vnet ? 1 : 0  
+  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_private_endpoint.acr_pe]
 
-  name                = azurerm_private_endpoint.acr_pe[count.index].name
+  name                = azurerm_private_endpoint.acr_pe.name
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "null_resource" "dns_acr_fix" {
-  count      = var.deploy_to_vnet ? 1 : 0  
+  #count      = var.deploy_to_vnet ? 1 : 0  
   depends_on = [azurerm_private_endpoint.acr_pe]
 
   provisioner "local-exec" {
@@ -76,7 +76,7 @@ resource "null_resource" "dns_acr_fix" {
       RESOURCE_GROUP=data.azurerm_resource_group.this.name
       REGISTRY_LOCATION="westeurope"
       REGISTRY_NAME=azurerm_container_registry.this.name
-      PRIVATE_ENDPOINT_NAME=azurerm_private_endpoint.acr_pe[count.index].name
+      PRIVATE_ENDPOINT_NAME=azurerm_private_endpoint.acr_pe.name
     }
   }
 }

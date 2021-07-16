@@ -48,9 +48,3 @@ variable "apps_subnet_prefix" {
   type        = string
   default     = "10.0.4.0/24"
 }
-
-variable "deploy_to_vnet" {
-  description = "Enable / disable private endpoints"
-  type        = bool
-  default     = true
-}

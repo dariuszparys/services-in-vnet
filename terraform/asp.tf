@@ -58,11 +58,7 @@ resource "azurerm_function_app" "coreapi" {
     pre_warmed_instance_count = 1
   }
 
-  app_settings = (
-                  var.deploy_to_vnet
-                    ? merge(local.appSettingsDefault, local.appSettingsPlusVnet)
-                    : local.appSettingsDefault
-                 )  
+  app_settings = (merge(local.appSettingsDefault, local.appSettingsPlusVnet))  
 
   identity {
     type = "SystemAssigned"
@@ -74,9 +70,9 @@ resource "azurerm_function_app" "coreapi" {
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "apps_vnet" {
-  count          = var.deploy_to_vnet ? 1 : 0
+  #count          = var.deploy_to_vnet ? 1 : 0
   app_service_id = azurerm_function_app.coreapi.id
-  subnet_id      = azurerm_subnet.apps[0].id
+  subnet_id      = azurerm_subnet.apps.id
   depends_on     = [
     azurerm_function_app.coreapi,
     azurerm_subnet.apps
@@ -85,25 +81,25 @@ resource "azurerm_app_service_virtual_network_swift_connection" "apps_vnet" {
 
 
 resource "azurerm_private_dns_zone" "websites_zone" {
-  count               = var.deploy_to_vnet ? 1 : 0
+  #count               = var.deploy_to_vnet ? 1 : 0
   name                = "privatelink.azurewebsites.net"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "websites_zone_link" {
-  count                 = var.deploy_to_vnet ? 1 : 0
+  #count                 = var.deploy_to_vnet ? 1 : 0
   name                  = "${local.resource_prefix}.websites_link"
   resource_group_name   = data.azurerm_resource_group.this.name
-  private_dns_zone_name = azurerm_private_dns_zone.websites_zone[count.index].name
-  virtual_network_id    = azurerm_virtual_network.this[count.index].id
+  private_dns_zone_name = azurerm_private_dns_zone.websites_zone.name
+  virtual_network_id    = azurerm_virtual_network.this.id
 }
 
 resource "azurerm_private_endpoint" "core_api_pe" {
-  count               = var.deploy_to_vnet ? 1 : 0
+  #count               = var.deploy_to_vnet ? 1 : 0
   name                = "${local.resource_prefix}-core-api-pe-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
-  subnet_id           = azurerm_subnet.aml[count.index].id
+  subnet_id           = azurerm_subnet.aml.id
 
   private_service_connection {
     name                           = "${local.resource_prefix}-core-api-psc-${local.seed_suffix}"
@@ -115,20 +111,20 @@ resource "azurerm_private_endpoint" "core_api_pe" {
 }
 
 data "azurerm_private_endpoint_connection" "core_api_conn" {
-  count                 = var.deploy_to_vnet ? 1 : 0  
+  #count                 = var.deploy_to_vnet ? 1 : 0  
   depends_on            = [azurerm_private_endpoint.core_api_pe]
 
-  name                  = azurerm_private_endpoint.core_api_pe[count.index].name
+  name                  = azurerm_private_endpoint.core_api_pe.name
   resource_group_name   = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_a_record" "core_api_dns_a_record" {
-  count                 = var.deploy_to_vnet ? 1 : 0  
+  #count                 = var.deploy_to_vnet ? 1 : 0  
   depends_on            = [azurerm_container_registry.this]
 
   name                  = lower(azurerm_function_app.coreapi.name)
-  zone_name             = azurerm_private_dns_zone.websites_zone[count.index].name
+  zone_name             = azurerm_private_dns_zone.websites_zone.name
   resource_group_name   = data.azurerm_resource_group.this.name
   ttl                   = 300
-  records               = [data.azurerm_private_endpoint_connection.core_api_conn[count.index].private_service_connection.0.private_ip_address]
+  records               = [data.azurerm_private_endpoint_connection.core_api_conn.private_service_connection.0.private_ip_address]
 }

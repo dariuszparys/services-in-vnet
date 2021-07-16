@@ -37,11 +37,11 @@ resource "azurerm_key_vault" "this" {
   }
 
   dynamic "network_acls" {
-    for_each = var.deploy_to_vnet ? [1] : []
+    for_each = [1]
     content {
       default_action = "Deny"
       ip_rules = []
-      virtual_network_subnet_ids = [ azurerm_subnet.aml[0].id ]
+      virtual_network_subnet_ids = [ azurerm_subnet.aml.id ]
       bypass = "AzureServices"
     }
   }
@@ -56,25 +56,25 @@ resource "azurerm_key_vault" "this" {
 }
 
 resource "azurerm_private_dns_zone" "kv_zone" {
-  count               = var.deploy_to_vnet ? 1 : 0  
+  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "privatelink.vaultcore.azure.net"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "kv_zone_link" {
-  count                 = var.deploy_to_vnet ? 1 : 0  
+  #count                 = var.deploy_to_vnet ? 1 : 0  
   name                  = "${local.resource_prefix}_link_kv"
   resource_group_name   = data.azurerm_resource_group.this.name
-  private_dns_zone_name = azurerm_private_dns_zone.kv_zone[count.index].name
-  virtual_network_id    = azurerm_virtual_network.this[count.index].id
+  private_dns_zone_name = azurerm_private_dns_zone.kv_zone.name
+  virtual_network_id    = azurerm_virtual_network.this.id
 }
 
 resource "azurerm_private_endpoint" "kv_pe" {
-  count               = var.deploy_to_vnet ? 1 : 0  
+  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "${local.resource_prefix}-kv-pe-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
-  subnet_id           = azurerm_subnet.aml[count.index].id
+  subnet_id           = azurerm_subnet.aml.id
 
   private_service_connection {
     name                           = "${local.resource_prefix}-kv-psc-${local.seed_suffix}"
@@ -85,20 +85,20 @@ resource "azurerm_private_endpoint" "kv_pe" {
 }
 
 data "azurerm_private_endpoint_connection" "kv_conn" {
-  count               = var.deploy_to_vnet ? 1 : 0  
+  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_private_endpoint.kv_pe]
 
-  name                = azurerm_private_endpoint.kv_pe[count.index].name
+  name                = azurerm_private_endpoint.kv_pe.name
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_a_record" "kv_pe_dns_a_record" {
-  count               = var.deploy_to_vnet ? 1 : 0  
+  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_key_vault.this]
 
   name                = lower(azurerm_key_vault.this.name)
-  zone_name           = azurerm_private_dns_zone.kv_zone[count.index].name
+  zone_name           = azurerm_private_dns_zone.kv_zone.name
   resource_group_name = data.azurerm_resource_group.this.name
   ttl                 = 300
-  records             = [data.azurerm_private_endpoint_connection.kv_conn[count.index].private_service_connection.0.private_ip_address]
+  records             = [data.azurerm_private_endpoint_connection.kv_conn.private_service_connection.0.private_ip_address]
 }

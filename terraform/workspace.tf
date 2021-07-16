@@ -17,41 +17,41 @@ resource "azurerm_machine_learning_workspace" "this" {
 }
 
 resource "azurerm_private_dns_zone" "ws_zone_api" {
-  count               = var.deploy_to_vnet ? 1 : 0  
+  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "privatelink.api.azureml.ms"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone" "ws_zone_notebooks" {
-  count               = var.deploy_to_vnet ? 1 : 0  
+  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "privatelink.notebooks.azure.net"
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "ws_zone_api_link" {
-  count                 = var.deploy_to_vnet ? 1 : 0  
+  #count                 = var.deploy_to_vnet ? 1 : 0  
   name                  = "${local.resource_prefix}_link_api"
   resource_group_name   = data.azurerm_resource_group.this.name
-  private_dns_zone_name = azurerm_private_dns_zone.ws_zone_api[count.index].name
-  virtual_network_id    = azurerm_virtual_network.this[count.index].id
+  private_dns_zone_name = azurerm_private_dns_zone.ws_zone_api.name
+  virtual_network_id    = azurerm_virtual_network.this.id
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "ws_zone_notebooks_link" {
-  count                 = var.deploy_to_vnet ? 1 : 0  
+  #count                 = var.deploy_to_vnet ? 1 : 0  
   name                  = "${local.resource_prefix}_link_notebooks"
   resource_group_name   = data.azurerm_resource_group.this.name
-  private_dns_zone_name = azurerm_private_dns_zone.ws_zone_notebooks[count.index].name
-  virtual_network_id    = azurerm_virtual_network.this[count.index].id
+  private_dns_zone_name = azurerm_private_dns_zone.ws_zone_notebooks.name
+  virtual_network_id    = azurerm_virtual_network.this.id
 }
 
 # Private Endpoint configuration
 
 resource "azurerm_private_endpoint" "ws_pe" {
-  count               = var.deploy_to_vnet ? 1 : 0  
+  #count               = var.deploy_to_vnet ? 1 : 0  
   name                = "${local.resource_prefix}-ws-pe-${local.seed_suffix}"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.this.name
-  subnet_id           = azurerm_subnet.aml[count.index].id
+  subnet_id           = azurerm_subnet.aml.id
 
   private_service_connection {
     name                           = "${local.resource_prefix}-ws-psc-${local.seed_suffix}"
@@ -64,15 +64,15 @@ resource "azurerm_private_endpoint" "ws_pe" {
 }
 
 data "azurerm_private_endpoint_connection" "ws_conn" {
-  count               = var.deploy_to_vnet ? 1 : 0  
+  #count               = var.deploy_to_vnet ? 1 : 0  
   depends_on          = [azurerm_private_endpoint.ws_pe]
 
-  name                = azurerm_private_endpoint.ws_pe[count.index].name
+  name                = azurerm_private_endpoint.ws_pe.name
   resource_group_name = data.azurerm_resource_group.this.name
 }
 
 resource "null_resource" "dns_aml_fix" {
-  count      = var.deploy_to_vnet ? 1 : 0  
+  #count      = var.deploy_to_vnet ? 1 : 0  
   depends_on = [azurerm_private_endpoint.ws_pe]
 
   provisioner "local-exec" {
@@ -81,7 +81,7 @@ resource "null_resource" "dns_aml_fix" {
     environment = {
       RESOURCE_GROUP=data.azurerm_resource_group.this.name
       RESOURCE_LOCATION="westeurope"
-      PRIVATE_ENDPOINT_NAME=azurerm_private_endpoint.ws_pe[count.index].name
+      PRIVATE_ENDPOINT_NAME=azurerm_private_endpoint.ws_pe.name
       AML_WORKSPACE_NAME=azurerm_machine_learning_workspace.this.name
     }
   }

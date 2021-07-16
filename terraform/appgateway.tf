@@ -12,7 +12,7 @@ locals {
 }
 
 resource "azurerm_public_ip" "coreapi_ip" {
-  count               = var.deploy_to_vnet ? 1 : 0
+  #count               = var.deploy_to_vnet ? 1 : 0
   name                = local.coreapi_ip_name
   resource_group_name = data.azurerm_resource_group.this.name
   location            = var.location
@@ -21,7 +21,7 @@ resource "azurerm_public_ip" "coreapi_ip" {
 }
 
 resource "azurerm_application_gateway" "network" {
-  count               = var.deploy_to_vnet ? 1 : 0
+  #count               = var.deploy_to_vnet ? 1 : 0
   name                = local.application_gateway_name
   resource_group_name = data.azurerm_resource_group.this.name
   location            = var.location
@@ -34,7 +34,7 @@ resource "azurerm_application_gateway" "network" {
 
   gateway_ip_configuration {
     name      = local.application_gateway_ip_config_name
-    subnet_id = azurerm_subnet.landing[count.index].id
+    subnet_id = azurerm_subnet.landing.id
   }
 
   frontend_port {
@@ -44,7 +44,7 @@ resource "azurerm_application_gateway" "network" {
 
   frontend_ip_configuration {
     name                 = local.frontend_ip_configuration_name
-    public_ip_address_id = azurerm_public_ip.coreapi_ip[count.index].id
+    public_ip_address_id = azurerm_public_ip.coreapi_ip.id
   }
 
   backend_address_pool {
