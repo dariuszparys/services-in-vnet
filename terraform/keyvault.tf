@@ -36,14 +36,11 @@ resource "azurerm_key_vault" "this" {
     ]
   }
 
-  dynamic "network_acls" {
-    for_each = [1]
-    content {
-      default_action = "Deny"
-      ip_rules = []
-      virtual_network_subnet_ids = [ azurerm_subnet.aml.id ]
-      bypass = "AzureServices"
-    }
+  network_acls {
+    default_action = "Deny"
+    ip_rules = []
+    virtual_network_subnet_ids = [ azurerm_subnet.aml.id ]
+    bypass = "AzureServices"
   }
 
   lifecycle {

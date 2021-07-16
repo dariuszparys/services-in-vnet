@@ -6,17 +6,14 @@ resource "azurerm_container_registry" "this" {
   admin_enabled                 = true 
 
 
-  dynamic "network_rule_set" {
-    for_each = [1]
-    content {
-      default_action = "Deny"
-      virtual_network = [
-        {
-          action = "Allow",
-          subnet_id = azurerm_subnet.aml.id
-        }
-      ]
-    }
+  network_rule_set {
+    default_action = "Deny"
+    virtual_network = [
+      {
+        action = "Allow",
+        subnet_id = azurerm_subnet.aml.id
+      }
+    ]
   }
 
   tags = {
