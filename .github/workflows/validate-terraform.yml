@@ -28,5 +28,6 @@ jobs:
       # Check terraform script
       - name: Validate terraform scripts
         run: |
+          cd terraform
           terraform init
           terraform validate
