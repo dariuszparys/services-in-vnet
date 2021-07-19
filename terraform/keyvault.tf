@@ -1,10 +1,9 @@
 resource "azurerm_key_vault" "this" {
   name                       = local.keyvault_name
-  resource_group_name        = data.azurerm_resource_group.this.name
-  location                   = var.location
+  resource_group_name        = azurerm_resource_group.this.name
+  location                   = azurerm_resource_group.this.location
   tenant_id                  = data.azurerm_client_config.this.tenant_id
   purge_protection_enabled   = true
-  soft_delete_enabled        = true
   sku_name                   = "standard"
 
   access_policy {
@@ -54,20 +53,20 @@ resource "azurerm_key_vault" "this" {
 
 resource "azurerm_private_dns_zone" "kv_zone" {
   name                = "privatelink.vaultcore.azure.net"
-  resource_group_name = data.azurerm_resource_group.this.name
+  resource_group_name = azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "kv_zone_link" {
   name                  = "${local.resource_prefix}_link_kv"
-  resource_group_name   = data.azurerm_resource_group.this.name
+  resource_group_name   = azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.kv_zone.name
   virtual_network_id    = azurerm_virtual_network.this.id
 }
 
 resource "azurerm_private_endpoint" "kv_pe" {
   name                = "${local.resource_prefix}-kv-pe-${local.seed_suffix}"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
   subnet_id           = azurerm_subnet.aml.id
 
   private_service_connection {
@@ -76,21 +75,9 @@ resource "azurerm_private_endpoint" "kv_pe" {
     subresource_names              = ["vault"]
     is_manual_connection           = false
   }
-}
 
-data "azurerm_private_endpoint_connection" "kv_conn" {
-  depends_on          = [azurerm_private_endpoint.kv_pe]
-
-  name                = azurerm_private_endpoint.kv_pe.name
-  resource_group_name = data.azurerm_resource_group.this.name
-}
-
-resource "azurerm_private_dns_a_record" "kv_pe_dns_a_record" {
-  depends_on          = [azurerm_key_vault.this]
-
-  name                = lower(azurerm_key_vault.this.name)
-  zone_name           = azurerm_private_dns_zone.kv_zone.name
-  resource_group_name = data.azurerm_resource_group.this.name
-  ttl                 = 300
-  records             = [data.azurerm_private_endpoint_connection.kv_conn.private_service_connection.0.private_ip_address]
+  private_dns_zone_group {
+    name                 = "private-dns-zone-group-kv"
+    private_dns_zone_ids = [azurerm_private_dns_zone.kv_zone.id]
+  }
 }

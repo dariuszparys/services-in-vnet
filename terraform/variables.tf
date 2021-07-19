@@ -1,6 +1,7 @@
 variable "project_code" {
   type        = string
   description = "Project code such as mlops. This value is used as a prefix to name the resources."
+  default     = "dp321"
 }
 
 variable "env_code" {
@@ -12,11 +13,13 @@ variable "env_code" {
 variable "location" {
   type        = string
   description = "Location where the resources should be created"
+  default     = "westeurope"
 }
 
 variable "resource_group_name" {
   type        = string
   description = "Name of the resource group to deploy the resources to"
+  default     = "rg-my-vnet-test3"
 }
 
 variable "vnet_address_space" {

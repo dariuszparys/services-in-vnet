@@ -13,16 +13,16 @@ locals {
 
 resource "azurerm_public_ip" "coreapi_ip" {
   name                = local.coreapi_ip_name
-  resource_group_name = data.azurerm_resource_group.this.name
-  location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
   sku                 = "Standard"
   allocation_method   = "Static"
 }
 
 resource "azurerm_application_gateway" "network" {
   name                = local.application_gateway_name
-  resource_group_name = data.azurerm_resource_group.this.name
-  location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
 
   sku {
     name     = "Standard_V2"

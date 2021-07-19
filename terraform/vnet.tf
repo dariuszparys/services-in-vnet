@@ -1,7 +1,7 @@
 resource "azurerm_virtual_network" "this" {
   name                = local.vnet_name
-  resource_group_name = data.azurerm_resource_group.this.name
-  location            = var.location  
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location  
   address_space       = var.vnet_address_space
   tags = {
     environment = "${var.env_code}"
@@ -10,7 +10,7 @@ resource "azurerm_virtual_network" "this" {
 
 resource "azurerm_subnet" "landing" {
   name                 = local.landing_subnet_name
-  resource_group_name  = data.azurerm_resource_group.this.name
+  resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
   address_prefixes     = [var.landing_subnet_prefix]
   service_endpoints = [ "Microsoft.Web"]
@@ -18,7 +18,7 @@ resource "azurerm_subnet" "landing" {
 
 resource "azurerm_subnet" "aml" {
   name                 = local.aml_subnet_name
-  resource_group_name  = data.azurerm_resource_group.this.name
+  resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
   address_prefixes     = [var.aml_subnet_prefix]
   service_endpoints = [ "Microsoft.KeyVault",
@@ -30,7 +30,7 @@ resource "azurerm_subnet" "aml" {
 
 resource "azurerm_subnet" "compute" {
   name                 = local.compute_subnet_name
-  resource_group_name  = data.azurerm_resource_group.this.name
+  resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
   address_prefixes     = [var.compute_subnet_prefix]
   service_endpoints = [ "Microsoft.KeyVault",
@@ -42,7 +42,7 @@ resource "azurerm_subnet" "compute" {
 
 resource "azurerm_subnet" "apps" {
   name                 = local.apps_subnet_name
-  resource_group_name  = data.azurerm_resource_group.this.name
+  resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
   address_prefixes     = [var.apps_subnet_prefix]
   

@@ -1,15 +1,15 @@
 resource "azurerm_storage_account" "apps" {
   name                     = local.apps_storage_name
-  resource_group_name      = data.azurerm_resource_group.this.name
-  location                 = var.location
+  resource_group_name      = azurerm_resource_group.this.name
+  location                 = azurerm_resource_group.this.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
 
 resource "azurerm_app_service_plan" "this" {
   name                = local.app_service_plan_elastic_name
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
   kind                = "elastic"
   reserved            = true
 
@@ -44,8 +44,8 @@ locals {
 
 resource "azurerm_function_app" "coreapi" {
   name                       = local.coreapi_name
-  location                   = var.location
-  resource_group_name        = data.azurerm_resource_group.this.name
+  location                   = azurerm_resource_group.this.location
+  resource_group_name        = azurerm_resource_group.this.name
   app_service_plan_id        = azurerm_app_service_plan.this.id
   storage_account_name       = azurerm_storage_account.apps.name
   storage_account_access_key = azurerm_storage_account.apps.primary_access_key
@@ -67,6 +67,10 @@ resource "azurerm_function_app" "coreapi" {
   tags = {
     environment = "${var.env_code}"
   }
+
+  depends_on = [
+    azurerm_app_service_plan.this
+  ]
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "apps_vnet" {
@@ -81,20 +85,20 @@ resource "azurerm_app_service_virtual_network_swift_connection" "apps_vnet" {
 
 resource "azurerm_private_dns_zone" "websites_zone" {
   name                = "privatelink.azurewebsites.net"
-  resource_group_name = data.azurerm_resource_group.this.name
+  resource_group_name = azurerm_resource_group.this.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "websites_zone_link" {
   name                  = "${local.resource_prefix}.websites_link"
-  resource_group_name   = data.azurerm_resource_group.this.name
+  resource_group_name   = azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.websites_zone.name
   virtual_network_id    = azurerm_virtual_network.this.id
 }
 
 resource "azurerm_private_endpoint" "core_api_pe" {
   name                = "${local.resource_prefix}-core-api-pe-${local.seed_suffix}"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
   subnet_id           = azurerm_subnet.aml.id
 
   private_service_connection {
@@ -104,21 +108,8 @@ resource "azurerm_private_endpoint" "core_api_pe" {
     is_manual_connection           = false
   }
 
-}
-
-data "azurerm_private_endpoint_connection" "core_api_conn" {
-  depends_on            = [azurerm_private_endpoint.core_api_pe]
-
-  name                  = azurerm_private_endpoint.core_api_pe.name
-  resource_group_name   = data.azurerm_resource_group.this.name
-}
-
-resource "azurerm_private_dns_a_record" "core_api_dns_a_record" {
-  depends_on            = [azurerm_container_registry.this]
-
-  name                  = lower(azurerm_function_app.coreapi.name)
-  zone_name             = azurerm_private_dns_zone.websites_zone.name
-  resource_group_name   = data.azurerm_resource_group.this.name
-  ttl                   = 300
-  records               = [data.azurerm_private_endpoint_connection.core_api_conn.private_service_connection.0.private_ip_address]
+  private_dns_zone_group {
+    name                 = "private-dns-zone-group-websites"
+    private_dns_zone_ids = [azurerm_private_dns_zone.websites_zone.id]
+  }
 }

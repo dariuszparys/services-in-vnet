@@ -1,21 +1,20 @@
 resource "azurerm_app_service_plan" "modelapiplan" {
   name                = local.app_service_plan_linux_name
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
   kind                = "Linux"
   reserved            = true
 
   sku {
     tier = "PremiumV2"
-    # P2v2 = 420 total ACU, 7 GB memory, Dv2-Series compute equivalent
     size = "P2v2"
   }
 }
 
 resource "azurerm_app_service" "modelapisvc" {
   name                = local.modelapi_name
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
   app_service_plan_id = azurerm_app_service_plan.modelapiplan.id
 
   site_config {
@@ -38,8 +37,8 @@ resource "azurerm_app_service" "modelapisvc" {
 
 resource "azurerm_private_endpoint" "model_api_pe" {
   name                = "${local.resource_prefix}-model-api-pe-${local.seed_suffix}"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
   subnet_id           = azurerm_subnet.aml.id
 
   private_service_connection {
@@ -49,17 +48,12 @@ resource "azurerm_private_endpoint" "model_api_pe" {
     is_manual_connection           = false
   }
 
-}
+  private_dns_zone_group {
+    name                 = "private-dns-zone-group-websites"
+    private_dns_zone_ids = [azurerm_private_dns_zone.websites_zone.id]
+  }
 
-data "azurerm_private_endpoint_connection" "model_api_conn" {
-  name                  = azurerm_private_endpoint.model_api_pe.name
-  resource_group_name   = data.azurerm_resource_group.this.name
-}
-
-resource "azurerm_private_dns_a_record" "model_api_dns_a_record" {
-  name                  = lower(azurerm_app_service.modelapisvc.name)
-  zone_name             = azurerm_private_dns_zone.websites_zone.name
-  resource_group_name   = data.azurerm_resource_group.this.name
-  ttl                   = 300
-  records               = [data.azurerm_private_endpoint_connection.model_api_conn.private_service_connection.0.private_ip_address]
+  depends_on = [
+    azurerm_private_endpoint.core_api_pe
+  ]
 }

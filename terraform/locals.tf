@@ -20,21 +20,18 @@ locals {
   app_service_plan_elastic_name   = "${local.resource_prefix}-asp-elastic"
   app_service_plan_linux_name   = "${local.resource_prefix}-asp-linux"
   container_registry_name = replace("${local.resource_prefix}acr${local.seed_suffix}", "-", "")
-  # Key Vault gets a suffix because of the soft delete setting. The same
-  # name isn't allowed to be recreated until the soft delete validation time
-  # (7 days) has past.
   keyvault_name           = "${local.resource_prefix}-kv-${local.seed_suffix}"
-  app_insights_name       = "${local.resource_prefix}-ain"
-  vnet_name               = "${local.resource_prefix}-vnet"
-  workspace_name          = "${local.resource_prefix}-workspace"
+  app_insights_name       = "${local.resource_prefix}-ain-${local.seed_suffix}"
+  vnet_name               = "${local.resource_prefix}-vnet-${local.seed_suffix}"
+  workspace_name          = "${local.resource_prefix}-workspace-${local.seed_suffix}"
   storage_name            = "${local.storage_prefix}${local.seed_suffix}"
   apps_storage_name       = "${local.storage_prefix}apps${local.seed_suffix}"
 }
 
 locals {
-  coreapi_name    = lower("${var.project_code}-coreapi-${var.env_code}")
-  modelapi_name   = lower("${var.project_code}-modelapi-${var.env_code}")
-  frontend_name   = lower("${var.project_code}-frontend-${var.env_code}")
+  coreapi_name    = lower("${local.resource_prefix}-coreapi-${local.seed_suffix}")
+  modelapi_name   = lower("${local.resource_prefix}-modelapi-${local.seed_suffix}")
+  frontend_name   = lower("${local.resource_prefix}-frontend-${local.seed_suffix}")
 }
 
 locals {
