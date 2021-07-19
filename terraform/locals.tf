@@ -17,8 +17,8 @@ locals {
 }
 
 locals {
-  app_service_plan_elastic_name   = "${local.resource_prefix}-asp-elastic"
-  app_service_plan_linux_name   = "${local.resource_prefix}-asp-linux"
+  app_service_plan_elastic_name   = "${local.resource_prefix}-asp-elastic-${local.seed_suffix}"
+  app_service_plan_linux_name   = "${local.resource_prefix}-asp-linux-${local.seed_suffix}"
   container_registry_name = replace("${local.resource_prefix}acr${local.seed_suffix}", "-", "")
   keyvault_name           = "${local.resource_prefix}-kv-${local.seed_suffix}"
   app_insights_name       = "${local.resource_prefix}-ain-${local.seed_suffix}"
