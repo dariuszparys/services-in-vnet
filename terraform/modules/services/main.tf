@@ -20,10 +20,12 @@ locals {
     APPINSIGHTS_INSTRUMENTATIONKEY          = var.app_insights_key
     APPLICATIONINSIGHTS_CONNECTION_STRING   = "InstrumentationKey=${var.app_insights_key}"
     https_only                              = true
-    DOCKER_REGISTRY_SERVER_URL              = "https://${var.container_registry_url}"
+    DOCKER_REGISTRY_SERVER_URL              = var.container_registry_url
     DOCKER_REGISTRY_SERVER_USERNAME         = var.container_registry_username
     DOCKER_REGISTRY_SERVER_PASSWORD         = var.container_registry_password
     PYTHON_ENABLE_WORKER_EXTENSIONS         = "1"
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE     = false
+    FUNCTION_APP_EDIT_MODE                  = "readOnly"
   }
 
   appSettingsPlusVnet = {
@@ -44,8 +46,7 @@ resource "azurerm_function_app" "services" {
   version                    = "~3"
 
   site_config {
-    linux_fx_version = "python|3.8"
-    use_32_bit_worker_process = false
+    linux_fx_version = "DOCKER|${var.container_registry_url}/functionapp:latest"
     pre_warmed_instance_count = 1
     always_on = true
   }
