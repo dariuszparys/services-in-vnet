@@ -1,28 +1,28 @@
 locals {
-  application_gateway_name            = "${local.resource_prefix}-gateway-${local.seed_suffix}"
-  application_gateway_ip_config_name  = "${local.resource_prefix}-gateway-ip-configuration"
-  coreapi_ip_name             = "${local.resource_prefix}-coreapi-ip"
-  backend_address_pool_name           = "${local.resource_prefix}-beap"
-  frontend_port_name                  = "${local.resource_prefix}-feport"
-  frontend_ip_configuration_name      = "${local.resource_prefix}-feip"
-  http_setting_name                   = "${local.resource_prefix}-be-htst"
-  listener_name                       = "${local.resource_prefix}-httplstn"
-  request_routing_rule_name           = "${local.resource_prefix}-rqrt"
-  redirect_configuration_name         = "${local.resource_prefix}-rdrcfg"
+  application_gateway_name            = "${var.resource_prefix}-gateway-${var.resource_suffix}"
+  application_gateway_ip_config_name  = "${var.resource_prefix}-gateway-ip-cfg-${var.resource_suffix}"
+  function_app_ip_name                = "${var.resource_prefix}-functionapp-ip-${var.resource_suffix}"
+  backend_address_pool_name           = "${var.resource_prefix}-beap-${var.resource_suffix}"
+  frontend_port_name                  = "${var.resource_prefix}-feport-${var.resource_suffix}"
+  frontend_ip_configuration_name      = "${var.resource_prefix}-feip-${var.resource_suffix}"
+  http_setting_name                   = "${var.resource_prefix}-be-htst-${var.resource_suffix}"
+  listener_name                       = "${var.resource_prefix}-httplstn-${var.resource_suffix}"
+  request_routing_rule_name           = "${var.resource_prefix}-rqrt-${var.resource_suffix}"
+  redirect_configuration_name         = "${var.resource_prefix}-rdrcfg-${var.resource_suffix}"
 }
 
-resource "azurerm_public_ip" "coreapi_ip" {
-  name                = local.coreapi_ip_name
-  resource_group_name = azurerm_resource_group.this.name
-  location            = azurerm_resource_group.this.location
+resource "azurerm_public_ip" "entry" {
+  name                = local.function_app_ip_name
+  resource_group_name = var.resource_group_name
+  location            = var.resource_group_location
   sku                 = "Standard"
   allocation_method   = "Static"
 }
 
 resource "azurerm_application_gateway" "network" {
   name                = local.application_gateway_name
-  resource_group_name = azurerm_resource_group.this.name
-  location            = azurerm_resource_group.this.location
+  resource_group_name = var.resource_group_name
+  location            = var.resource_group_location
 
   sku {
     name     = "Standard_V2"
@@ -32,7 +32,7 @@ resource "azurerm_application_gateway" "network" {
 
   gateway_ip_configuration {
     name      = local.application_gateway_ip_config_name
-    subnet_id = azurerm_subnet.landing.id
+    subnet_id = var.gateway_subnet_id
   }
 
   frontend_port {
@@ -42,13 +42,14 @@ resource "azurerm_application_gateway" "network" {
 
   frontend_ip_configuration {
     name                 = local.frontend_ip_configuration_name
-    public_ip_address_id = azurerm_public_ip.coreapi_ip.id
+    public_ip_address_id = azurerm_public_ip.entry.id
   }
 
   backend_address_pool {
     name = local.backend_address_pool_name
     fqdns = [
-      azurerm_app_service.modelapisvc.default_site_hostname
+      # azurerm_app_service.modelapisvc.default_site_hostname
+      var.app_service_fqdns
     ]
   }
 
@@ -75,8 +76,4 @@ resource "azurerm_application_gateway" "network" {
     backend_address_pool_name  = local.backend_address_pool_name
     backend_http_settings_name = local.http_setting_name
   }
-
-  depends_on = [
-    azurerm_function_app.coreapi
-  ]
 }
