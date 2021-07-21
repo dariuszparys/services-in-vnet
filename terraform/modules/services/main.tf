@@ -27,8 +27,9 @@ locals {
   }
 
   appSettingsPlusVnet = {
+    WEBSITE_CONTENTOVERVNET                 = "1"
     WEBSITE_DNS_SERVER                      = "168.63.129.16" // this is Azure DNS service for private zones
-    WEBSITE_VNET_ROUTE_ALL                  = "1"  
+    WEBSITE_VNET_ROUTE_ALL                  = "1"
   }
 }
 
@@ -41,11 +42,6 @@ resource "azurerm_function_app" "services" {
   storage_account_access_key = var.storage_account_access_key
   os_type                    = "linux"
   version                    = "~3"
-
-  # site_config {
-  #   always_on = true
-  #   linux_fx_version  = "DOCKER|${var.container_registry_url}/${var.function_app_image}:${var.function_app_image_tag}"
-  # }
 
   site_config {
     linux_fx_version = "python|3.8"
