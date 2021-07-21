@@ -34,7 +34,7 @@ variable "resource_suffix" {
   description = "suffix for resource"
 }
 
-variable "app_service_fqdns" {
+variable "function_app_fqdns" {
   type        = string
-  description = "Fully qualified domain name for app service"
+  description = "Fully qualified domain name for function app"
 }

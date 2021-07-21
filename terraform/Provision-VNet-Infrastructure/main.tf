@@ -139,7 +139,7 @@ module appgateway {
   resource_suffix               = local.seed_suffix
 
   gateway_subnet_id             = module.vnet[count.index].gateway_subnet_id
-  app_service_fqdns             = module.services[count.index].appservice_url
+  function_app_fqdns            = module.services[count.index].functionapp_url
 
   enable_vnet                   = var.enable_vnet
 
