@@ -1,4 +1,5 @@
 import logging
+import requests
 
 import azure.functions as func
 
@@ -6,19 +7,20 @@ import azure.functions as func
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
-    name = req.params.get('name')
-    if not name:
+    url = req.params.get('url')
+    if not url:
         try:
             req_body = req.get_json()
         except ValueError:
             pass
         else:
-            name = req_body.get('name')
+            url = req_body.get('url')
 
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
+    if url:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return func.HttpResponse(response.text)
+        else:
+            return func.HttpResonse(f"Http status code is {response.status_code}")            
     else:
-        return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-             status_code=200
-        )
+        return func.HttpResponse("no url parameter provided")

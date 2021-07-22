@@ -3,6 +3,8 @@ This script runs the application using a development server.
 It contains the definition of routes and views for the application.
 """
 
+import platform
+
 from flask import Flask
 app = Flask(__name__)
 
@@ -13,7 +15,7 @@ wsgi_app = app.wsgi_app
 @app.route('/')
 def hello():
     """Renders a sample page."""
-    return "Hello World!"
+    return f"Hello, world. (running on {platform.release()})"
 
 if __name__ == '__main__':
     import os

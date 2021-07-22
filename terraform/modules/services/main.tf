@@ -73,7 +73,7 @@ resource "azurerm_app_service" "services" {
   app_service_plan_id = azurerm_app_service_plan.services.id
 
   site_config {
-    app_command_line = ""
+    linux_fx_version = "DOCKER|${var.container_registry_url}/appservice:latest"
     always_on = true
   }
 
