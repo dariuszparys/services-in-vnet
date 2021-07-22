@@ -13,9 +13,6 @@ provider "azurerm" {
   features {}
 }
 
-data "azurerm_client_config" "this" {
-}
-
 resource "azurerm_resource_group" "this" {
   name      = var.resource_group_name
   location  = var.location
