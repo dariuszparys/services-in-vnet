@@ -1,5 +1,7 @@
 # [WIP] Terraform VNet for Azure Function and App Services Sample
 
+> **This README is still not complete and work in progress**
+
 [![CI](https://github.com/dariuszparys/services-in-vnet/actions/workflows/validate-terraform.yml/badge.svg)](https://github.com/dariuszparys/services-in-vnet/actions/workflows/validate-terraform.yml)
 
 This sample is demonstrating the following infrastructure components
