@@ -13,9 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
@@ -30,11 +27,25 @@ jobs:
       - name: Install terraform compliance
         run: |
           pip install terraform-compliance
-      
+
+      - name: Login to Azure
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az login --service-principal -u ${{ secrets.CLIENT_ID }} -p ${{ secrets.CLIENT_SECRET }} \
+                    --tenant ${{ secrets.TENANT_ID }}
+
       - name: Run terraform compliance
         run: |
           cd ${{ github.workspace }}/terraform/Provision-VNet-Infrastructure
           terraform plan -out=plan.tfplan -var='enable_vnet=true'
           terraform show --json plan.tfplan > plan.tfplan.json
           terraform-compliance -p plan.tfplan.json -f ${{ github.workspace }}/terraform/features/
-          
+
+      - name: Clean up caches
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az logout
+            az cache purge
+            az account clear
