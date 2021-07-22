@@ -32,5 +32,6 @@ jobs:
         run: |
           cd ${{ github.workspace }}/terraform/Provision-VNet-Infrastructure
           terraform plan -out=plan.tfplan -var='enable_vnet=true'
-          terraform-compliance -p plan.tfplan -f ${{ github.workspace }}/terraform/features/
+          terraform show --json plan.tfplan > plan.tfplan.json
+          terraform-compliance -p plan.tfplan.json -f ${{ github.workspace }}/terraform/features/
           
