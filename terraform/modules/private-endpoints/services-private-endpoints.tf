@@ -26,14 +26,14 @@ resource "azurerm_private_dns_zone_virtual_network_link" "websites_zone_link" {
   virtual_network_id    = var.virtual_network_id
 }
 
-resource "azurerm_private_endpoint" "core_api_pe" {
-  name                = "${var.resource_prefix}-core-api-pe-${var.resource_suffix}"
+resource "azurerm_private_endpoint" "function_app_pe" {
+  name                = "${var.resource_prefix}-function-app-pe-${var.resource_suffix}"
   location            = var.resource_group_location
   resource_group_name = var.resource_group_name
   subnet_id           = var.private_endpoints_subnet_id
 
   private_service_connection {
-    name                           = "${var.resource_prefix}-core-api-psc-${var.resource_suffix}"
+    name                           = "${var.resource_prefix}-function-app-psc-${var.resource_suffix}"
     private_connection_resource_id = data.azurerm_function_app.services.id
     subresource_names              = ["sites"]
     is_manual_connection           = false
@@ -45,14 +45,14 @@ resource "azurerm_private_endpoint" "core_api_pe" {
   }
 }
 
-resource "azurerm_private_endpoint" "model_api_pe" {
-  name                = "${var.resource_prefix}-model-api-pe-${var.resource_suffix}"
+resource "azurerm_private_endpoint" "app_service_pe" {
+  name                = "${var.resource_prefix}-app-service-pe-${var.resource_suffix}"
   location            = var.resource_group_location
   resource_group_name = var.resource_group_name
   subnet_id           = var.private_endpoints_subnet_id
 
   private_service_connection {
-    name                           = "${var.resource_prefix}-model-api-psc-${var.resource_suffix}"
+    name                           = "${var.resource_prefix}-app-service-psc-${var.resource_suffix}"
     private_connection_resource_id = data.azurerm_app_service.services.id
     subresource_names              = ["sites"]
     is_manual_connection           = false
