@@ -23,28 +23,24 @@ jobs:
           cd ${{ github.workspace }}/terraform/Provision-VNet-Infrastructure
           terraform init
           terraform validate
+        env:
+          ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.CLIENT_SUBSCRIPTION }}
+          ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
 
       - name: Install terraform compliance
         run: |
           pip install terraform-compliance
 
       - name: Run terraform compliance tests
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.26.1
-          inlineScript: |
-            az login --service-principal -u ${{ secrets.CLIENT_ID }} -p ${{ secrets.CLIENT_SECRET }} \
-                    --tenant ${{ secrets.TENANT_ID }}
-            cd ${{ github.workspace }}/terraform/Provision-VNet-Infrastructure
-            terraform plan -out=plan.tfplan -var='enable_vnet=true'
-            terraform show --json plan.tfplan > plan.tfplan.json
-            terraform-compliance -p plan.tfplan.json -f ${{ github.workspace }}/terraform/features/
-
-      - name: Azure CLI script
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.26.1
-          inlineScript: |
-            az logout
-            az cache purge
-            az account clear
+        run: |
+          cd ${{ github.workspace }}/terraform/Provision-VNet-Infrastructure
+          terraform plan -out=plan.tfplan -var='enable_vnet=true'
+          terraform show --json plan.tfplan > plan.tfplan.json
+          terraform-compliance -p plan.tfplan.json -f ${{ github.workspace }}/terraform/features/
+        env:
+          ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.CLIENT_SUBSCRIPTION }}
+          ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
