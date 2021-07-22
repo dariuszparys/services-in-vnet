@@ -26,7 +26,7 @@ jobs:
         env:
           ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.CLIENT_SUBSCRIPTION }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
 
       - name: Install terraform compliance
@@ -42,5 +42,5 @@ jobs:
         env:
           ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.CLIENT_SUBSCRIPTION }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
