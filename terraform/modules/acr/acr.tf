@@ -33,3 +33,15 @@ resource "azurerm_container_registry" "shared" {
     environment = var.env_code
   }  
 }
+
+resource "null_resource" "deployment" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      az acr login -n ${azurerm_container_registry.shared.name}
+      az acr build -t ${azurerm_container_registry.shared.login_server}/functionapp:latest -r ${azurerm_container_registry.shared.name} ../../src/call_any_url/
+      az acr build -t ${azurerm_container_registry.shared.login_server}/appservice:latest -r ${azurerm_container_registry.shared.name} ../../src/flask_app_service/
+    EOT 
+  }
+
+  depends_on = [ azurerm_container_registry.shared ]
+}
