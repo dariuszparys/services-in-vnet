@@ -28,23 +28,22 @@ jobs:
         run: |
           pip install terraform-compliance
 
-      - name: Login to Azure
+      - name: Run terraform compliance tests
         uses: azure/CLI@v1
         with:
+          azcliversion: 2.26.1
           inlineScript: |
             az login --service-principal -u ${{ secrets.CLIENT_ID }} -p ${{ secrets.CLIENT_SECRET }} \
                     --tenant ${{ secrets.TENANT_ID }}
+            cd ${{ github.workspace }}/terraform/Provision-VNet-Infrastructure
+            terraform plan -out=plan.tfplan -var='enable_vnet=true'
+            terraform show --json plan.tfplan > plan.tfplan.json
+            terraform-compliance -p plan.tfplan.json -f ${{ github.workspace }}/terraform/features/
 
-      - name: Run terraform compliance
-        run: |
-          cd ${{ github.workspace }}/terraform/Provision-VNet-Infrastructure
-          terraform plan -out=plan.tfplan -var='enable_vnet=true'
-          terraform show --json plan.tfplan > plan.tfplan.json
-          terraform-compliance -p plan.tfplan.json -f ${{ github.workspace }}/terraform/features/
-
-      - name: Clean up caches
+      - name: Azure CLI script
         uses: azure/CLI@v1
         with:
+          azcliversion: 2.26.1
           inlineScript: |
             az logout
             az cache purge
