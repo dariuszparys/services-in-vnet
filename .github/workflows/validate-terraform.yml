@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
     - 'terraform/**'
+    - '.github/workflows/validate-terraform.yml'
   pull_request:
     branches: [ main ]
 
