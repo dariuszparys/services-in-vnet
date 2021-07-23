@@ -143,5 +143,7 @@ Hello, world. (running on 4.15.0-135-generic)
 
 ## References
 
-This sample application is an excerpt of an bigger script to nail down the base of
-having 
+This sample application is based on the result of an customer engagment. It is simplified
+and provides just some key learnings.
+
+It was also inspired by https://github.com/Humoiz/azureml-terraform-template 
