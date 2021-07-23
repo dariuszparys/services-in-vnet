@@ -52,6 +52,10 @@ module acr {
   container_registry_name       = local.container_registry_name
   private_endpoints_subnet_id   = var.enable_vnet ? module.vnet[count.index].private_endpoints_subnet_id : ""
 
+  functionapp_image_name        = var.functionapp_image_name
+  appservice_image_name         = var.appservice_image_name
+  common_image_tag              = var.common_image_tag
+
   enable_vnet                   = var.enable_vnet
 }
 
@@ -95,6 +99,10 @@ module services {
   container_registry_url      = module.acr[count.index].container_registry_login_server
   container_registry_username = module.acr[count.index].container_registry_username
   container_registry_password = module.acr[count.index].container_registry_password
+
+  functionapp_image_name      = var.functionapp_image_name
+  appservice_image_name       = var.appservice_image_name
+  common_image_tag            = var.common_image_tag
 
   enable_vnet                 = var.enable_vnet
 }

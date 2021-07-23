@@ -63,3 +63,18 @@ variable "enable_vnet" {
   type        = string
   description = "Activate vnet"
 }
+
+variable "functionapp_image_name" {
+  type        = string
+  description = "Activate vnet"
+}
+
+variable "appservice_image_name" {
+  type        = string
+  description = "Activate vnet"
+}
+
+variable "common_image_tag" {
+  type        = string
+  description = "Activate vnet"
+}

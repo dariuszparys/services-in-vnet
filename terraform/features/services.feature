@@ -20,12 +20,13 @@ Feature: Services Deployment
     And it contains Size
     Then its value must be P1v2
 
-  Scenario: Ensure function app is deployed with private endpoint
-    Given I have azurerm_private_endpoint defined
-    When its name is function_app_pe
-    Then it must contain private_service_connection
-
   # Due to this issue I need to comment out
+  # https://github.com/terraform-compliance/cli/issues/526
+  # Scenario: Ensure function app is deployed with private endpoint
+  #   Given I have azurerm_private_endpoint defined
+  #   When its name is function_app_pe
+  #   Then it must contain private_service_connection
+
   # https://github.com/terraform-compliance/cli/issues/526
   # Scenario: Ensure function app is deployed with vnet integration
   #   Given I have azurerm_app_service_virtual_network_swift_connection defined

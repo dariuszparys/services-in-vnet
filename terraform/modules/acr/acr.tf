@@ -34,12 +34,16 @@ resource "azurerm_container_registry" "shared" {
   }  
 }
 
+# The az acr build command can also be applied with a --no-wait option
+# It is just not inserted here to have the first time experience flawless
+# as the services might still wait for pulling the containers currently
+# build asynchronously
 resource "null_resource" "deployment" {
   provisioner "local-exec" {
     command = <<-EOT
       az acr login -n ${azurerm_container_registry.shared.name}
-      az acr build --no-wait -t ${azurerm_container_registry.shared.login_server}/functionapp:latest -r ${azurerm_container_registry.shared.name} ../../src/call_any_url/
-      az acr build --no-wait -t ${azurerm_container_registry.shared.login_server}/appservice:latest -r ${azurerm_container_registry.shared.name} ../../src/flask_app_service/
+      az acr build -t ${azurerm_container_registry.shared.login_server}/${var.functionapp_image_name}:${var.common_image_tag} -r ${azurerm_container_registry.shared.name} ../../src/call_any_url/
+      az acr build -t ${azurerm_container_registry.shared.login_server}/${var.appservice_image_name}:${var.common_image_tag} -r ${azurerm_container_registry.shared.name} ../../src/flask_app_service/
     EOT 
   }
 

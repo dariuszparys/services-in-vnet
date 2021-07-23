@@ -46,7 +46,7 @@ resource "azurerm_function_app" "services" {
   version                    = "~3"
 
   site_config {
-    linux_fx_version = "DOCKER|${var.container_registry_url}/functionapp:latest"
+    linux_fx_version = "DOCKER|${var.container_registry_url}/${var.functionapp_image_name}:${var.common_image_tag}"
     pre_warmed_instance_count = 1
     always_on = true
   }
@@ -73,7 +73,7 @@ resource "azurerm_app_service" "services" {
   app_service_plan_id = azurerm_app_service_plan.services.id
 
   site_config {
-    linux_fx_version = "DOCKER|${var.container_registry_url}/appservice:latest"
+    linux_fx_version = "DOCKER|${var.container_registry_url}/${var.appservice_image_name}:${var.common_image_tag}"
     always_on = true
   }
 
