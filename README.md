@@ -6,7 +6,7 @@
 
 This sample is demonstrating the following infrastructure components
 
-todo: insert architecture picture here
+![VNet overview](docs/assets/vnet-overview.png)
 
 Further it has two sample applications that will be deployed together with the terraform
 apply command. You find the applications under the `src` directory and both are written
